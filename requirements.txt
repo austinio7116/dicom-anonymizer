@@ -1,0 +1,12 @@
+# Core dependencies
+pydicom>=2.3.0
+pyyaml>=6.0
+
+# Optional dependencies
+tqdm>=4.64.0  # For progress bars
+
+# Development dependencies
+pytest>=7.0.0
+black>=22.0.0
+flake8>=5.0.0
+isort>=5.10.0

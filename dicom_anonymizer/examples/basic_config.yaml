@@ -1,0 +1,71 @@
+# DICOM Anonymizer Basic Configuration
+# This is a basic configuration file for the DICOM anonymizer tool.
+
+# Input directory configuration
+input:
+  directory: "./input"  # Path to the input directory containing DICOM files
+  recursive: true       # Whether to scan subdirectories recursively
+
+# Output directory configuration
+output:
+  directory: "./output"  # Path to the output directory for anonymized DICOM files
+  preserve_structure: true  # Whether to preserve the directory structure of the input files
+
+# Logging configuration
+logging:
+  level: "INFO"  # Logging level (DEBUG, INFO, WARNING, ERROR, CRITICAL)
+  file: "anonymization.log"  # Path to the log file (optional)
+
+# Anonymization configuration
+anonymization:
+  # Standard tags to anonymize
+  standard_tags:
+    # Patient name - replace with fixed value
+    - tag: "PatientName"
+      method: "fixed"
+      value: "ANONYMOUS"
+    
+    # Patient ID - replace with hash of original value
+    - tag: "PatientID"
+      method: "hash"
+      salt: "custom-salt"
+    
+    # Patient birth date - replace with random date
+    - tag: "PatientBirthDate"
+      method: "random"
+      type: "date"
+      start_date: "1940-01-01"
+      end_date: "2000-01-01"
+    
+    # Patient sex - replace with fixed value
+    - tag: "PatientSex"
+      method: "fixed"
+      value: "O"  # O for Other
+    
+    # Patient address - remove completely
+    - tag: "PatientAddress"
+      method: "remove"
+  
+  # Tag groups to anonymize
+  tag_groups:
+    # All physician-related tags - replace with fixed value
+    - group: "Physician"
+      method: "fixed"
+      value: "ANONYMOUS PHYSICIAN"
+    
+    # All institution-related tags - replace with fixed value
+    - group: "Institution"
+      method: "fixed"
+      value: "ANONYMOUS INSTITUTION"
+  
+  # Private tags to anonymize
+  private_tags:
+    # All private tags in group 0x0009 - remove completely
+    - group: "0x0009"
+      method: "remove"
+    
+    # Private tags with specific creator - replace with fixed value
+    - group: "0x0011"
+      creator: "GEMS_PATI_01"
+      method: "fixed"
+      value: "ANONYMIZED"

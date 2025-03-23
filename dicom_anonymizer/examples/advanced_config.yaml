@@ -1,0 +1,185 @@
+# DICOM Anonymizer Advanced Configuration
+# This is an advanced configuration file for the DICOM anonymizer tool.
+
+# Input directory configuration
+input:
+  directory: "./input"  # Path to the input directory containing DICOM files
+  recursive: true       # Whether to scan subdirectories recursively
+
+# Output directory configuration
+output:
+  directory: "./output"  # Path to the output directory for anonymized DICOM files
+  preserve_structure: true  # Whether to preserve the directory structure of the input files
+
+# Logging configuration
+logging:
+  level: "DEBUG"  # Logging level (DEBUG, INFO, WARNING, ERROR, CRITICAL)
+  file: "anonymization_detailed.log"  # Path to the log file
+
+# Processing configuration
+max_workers: 4  # Number of worker threads for parallel processing
+
+# Anonymization configuration
+anonymization:
+  # Standard tags to anonymize
+  standard_tags:
+    # Patient name - replace with fixed value
+    - tag: "PatientName"
+      method: "fixed"
+      value: "ANONYMOUS"
+    
+    # Patient ID - replace with hash of original value
+    - tag: "PatientID"
+      method: "hash"
+      salt: "custom-salt"
+      algorithm: "sha256"
+      max_length: 16
+    
+    # Patient birth date - replace with date shift
+    - tag: "PatientBirthDate"
+      method: "date_shift"
+      min_days: -1000
+      max_days: 1000
+    
+    # Patient sex - replace with fixed value
+    - tag: "PatientSex"
+      method: "fixed"
+      value: "O"  # O for Other
+    
+    # Patient address - remove completely
+    - tag: "PatientAddress"
+      method: "remove"
+    
+    # Accession number - replace with random value
+    - tag: "AccessionNumber"
+      method: "random"
+      type: "string"
+      length: 16
+      charset: "numeric"
+    
+    # Study ID - replace with random value
+    - tag: "StudyID"
+      method: "random"
+      type: "string"
+      length: 8
+      charset: "alphanumeric"
+    
+    # Study description - replace with fixed value
+    - tag: "StudyDescription"
+      method: "fixed"
+      value: "ANONYMIZED STUDY"
+    
+    # Series description - replace with fixed value
+    - tag: "SeriesDescription"
+      method: "fixed"
+      value: "ANONYMIZED SERIES"
+    
+    # Study date - replace with date shift (same shift as birth date)
+    - tag: "StudyDate"
+      method: "date_shift"
+      min_days: -1000
+      max_days: 1000
+    
+    # Study time - replace with fixed value
+    - tag: "StudyTime"
+      method: "fixed"
+      value: "120000"  # 12:00:00
+    
+    # Series date - replace with date shift (same shift as birth date)
+    - tag: "SeriesDate"
+      method: "date_shift"
+      min_days: -1000
+      max_days: 1000
+    
+    # Series time - replace with fixed value
+    - tag: "SeriesTime"
+      method: "fixed"
+      value: "120000"  # 12:00:00
+    
+    # Instance creation date - replace with date shift (same shift as birth date)
+    - tag: "InstanceCreationDate"
+      method: "date_shift"
+      min_days: -1000
+      max_days: 1000
+    
+    # Instance creation time - replace with fixed value
+    - tag: "InstanceCreationTime"
+      method: "fixed"
+      value: "120000"  # 12:00:00
+    
+    # Study instance UID - replace with random UID
+    - tag: "StudyInstanceUID"
+      method: "random"
+      type: "uid"
+      prefix: "1.2.826.0.1.3680043.9.7134."
+      length: 16
+    
+    # Series instance UID - replace with random UID
+    - tag: "SeriesInstanceUID"
+      method: "random"
+      type: "uid"
+      prefix: "1.2.826.0.1.3680043.9.7134."
+      length: 16
+    
+    # SOP instance UID - replace with random UID
+    - tag: "SOPInstanceUID"
+      method: "random"
+      type: "uid"
+      prefix: "1.2.826.0.1.3680043.9.7134."
+      length: 16
+  
+  # Tag groups to anonymize
+  tag_groups:
+    # All physician-related tags - replace with fixed value
+    - group: "Physician"
+      method: "fixed"
+      value: "ANONYMOUS PHYSICIAN"
+      exceptions: ["PhysicianOfRecord"]  # Exception to the group rule
+    
+    # All institution-related tags - replace with fixed value
+    - group: "Institution"
+      method: "fixed"
+      value: "ANONYMOUS INSTITUTION"
+    
+    # All patient-related tags not explicitly handled - replace with fixed value
+    - group: "Patient"
+      method: "fixed"
+      value: "ANONYMOUS"
+      exceptions: ["PatientName", "PatientID", "PatientBirthDate", "PatientSex", "PatientAddress"]
+    
+    # All study-related tags not explicitly handled - replace with fixed value
+    - group: "Study"
+      method: "fixed"
+      value: "ANONYMOUS"
+      exceptions: ["StudyID", "StudyDescription", "StudyDate", "StudyTime", "StudyInstanceUID"]
+    
+    # All series-related tags not explicitly handled - replace with fixed value
+    - group: "Series"
+      method: "fixed"
+      value: "ANONYMOUS"
+      exceptions: ["SeriesDescription", "SeriesDate", "SeriesTime", "SeriesInstanceUID"]
+  
+  # Private tags to anonymize
+  private_tags:
+    # All private tags in group 0x0009 - remove completely
+    - group: "0x0009"
+      method: "remove"
+    
+    # Private tags with specific creator - replace with fixed value
+    - group: "0x0011"
+      creator: "GEMS_PATI_01"
+      method: "fixed"
+      value: "ANONYMIZED"
+    
+    # Private tags in group 0x0019 - replace with random values
+    - group: "0x0019"
+      method: "random"
+      type: "string"
+      length: 8
+    
+    # Private tags in group 0x0021 - replace with hash of original value
+    - group: "0x0021"
+      method: "hash"
+      salt: "private-tag-salt"
+      algorithm: "sha256"
+      max_length: 16
