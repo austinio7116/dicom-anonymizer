@@ -196,14 +196,29 @@ class AnonymizationEngine:
         
         # Get the salt for hashing
         salt = value_config.get('salt', 'default_salt')
-        
+
+        # Get the hash algorithm
+        algorithm = value_config.get('algorithm', 'sha256').lower()
+
         # Convert original value to string if it's not already
         if not isinstance(original_value, str):
             original_value = str(original_value)
-        
+
         # Create a hash of the original value with the salt
         hash_input = f"{original_value}{salt}"
-        hash_obj = hashlib.sha256(hash_input.encode())
+
+        if algorithm == 'md5':
+            hash_obj = hashlib.md5(hash_input.encode())
+        elif algorithm == 'sha1':
+            hash_obj = hashlib.sha1(hash_input.encode())
+        elif algorithm == 'sha256':
+            hash_obj = hashlib.sha256(hash_input.encode())
+        elif algorithm == 'sha512':
+            hash_obj = hashlib.sha512(hash_input.encode())
+        else:
+            logging.warning(f"Unknown hash algorithm '{algorithm}', using sha256")
+            hash_obj = hashlib.sha256(hash_input.encode())
+
         hash_hex = hash_obj.hexdigest()
         
         # Truncate the hash if needed
